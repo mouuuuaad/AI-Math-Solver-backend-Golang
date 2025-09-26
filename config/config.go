@@ -55,7 +55,7 @@ func Load() (*Config, error) {
 		},
 		Server: ServerConfig{
 			Port:    getEnv("PORT", "8000"),
-			GinMode: getEnv("GIN_MODE", "debug"),
+			GinMode: getValidGinMode(getEnv("GIN_MODE", "debug")),
 		},
 		AI: AIConfig{
 			ServiceURL: getEnv("AI_SERVICE_URL", "http://localhost:5000"),
@@ -83,4 +83,21 @@ func getEnvAsInt(key string, defaultValue int) int {
 		}
 	}
 	return defaultValue
+}
+
+func getValidGinMode(mode string) string {
+	validModes := map[string]string{
+		"debug":      "debug",
+		"release":    "release",
+		"test":       "test",
+		"prod":       "release", // map production to release
+		"production": "release", // map production to release
+	}
+
+	if validMode, exists := validModes[mode]; exists {
+		return validMode
+	}
+
+	// Default to debug if invalid mode
+	return "debug"
 }
