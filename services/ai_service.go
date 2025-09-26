@@ -42,10 +42,16 @@ func (s *AIService) SolveMath(expression string) (*AIResponse, error) {
 
 	// Clean the service URL to prevent double slashes
 	serviceURL := s.config.AI.ServiceURL
-	if serviceURL[len(serviceURL)-1:] == "/" {
+	// Remove any trailing slashes
+	for len(serviceURL) > 0 && serviceURL[len(serviceURL)-1] == '/' {
 		serviceURL = serviceURL[:len(serviceURL)-1]
 	}
-	req, err := http.NewRequest("POST", serviceURL+"/solve", bytes.NewBuffer(jsonData))
+
+	// Construct the full URL
+	fullURL := serviceURL + "/solve"
+	fmt.Printf("DEBUG: Calling AI service at: %s\n", fullURL)
+
+	req, err := http.NewRequest("POST", fullURL, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
