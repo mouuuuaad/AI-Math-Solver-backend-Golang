@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net/http"
 	"maths-solution-backend/config"
 	"maths-solution-backend/models"
+	"net/http"
 )
 
 type AIService struct {
@@ -40,7 +40,12 @@ func (s *AIService) SolveMath(expression string) (*AIResponse, error) {
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	req, err := http.NewRequest("POST", s.config.AI.ServiceURL+"/solve", bytes.NewBuffer(jsonData))
+	// Clean the service URL to prevent double slashes
+	serviceURL := s.config.AI.ServiceURL
+	if serviceURL[len(serviceURL)-1:] == "/" {
+		serviceURL = serviceURL[:len(serviceURL)-1]
+	}
+	req, err := http.NewRequest("POST", serviceURL+"/solve", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
